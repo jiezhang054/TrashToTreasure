@@ -5,20 +5,20 @@ import torch.nn.functional as F
 class SingleViewEncoder(nn.Module):
     def __init__(self, input_dim, latent_dim, hidden_dims):
         """
-        单视图有用编码器
+        Single-view useful encoder
         Args:
-            input_dim: 输入维度 D(v)
-            latent_dim: 潜在维度 l
-            hidden_dims: 隐藏层维度列表
+            input_dim: Input dimension D(v)
+            latent_dim: Latent dimension l
+            hidden_dims: Hidden layer dimensions list
         """
         super(SingleViewEncoder, self).__init__()
 
         self.dropout_rata = 0.3
-        # 构建三层全连接网络
+        # Build three-layer fully connected network
         layers = []
         prev_dim = input_dim
 
-        # 添加隐藏层
+        # Add hidden layers
         for i,hidden_dim in enumerate(hidden_dims):
             layers.append(nn.Linear(prev_dim, hidden_dim))
             layers.append(nn.ReLU())
@@ -27,18 +27,18 @@ class SingleViewEncoder(nn.Module):
                 layers.append(nn.Dropout(self.dropout_rata))
             prev_dim = hidden_dim
 
-        # 添加输出层（潜在表示层）
+        # Add output layer (latent representation layer)
         layers.append(nn.Linear(prev_dim, latent_dim))
 
         self.encoder = nn.Sequential(*layers)
 
     def forward(self, x):
         """
-        前向传播
+        Forward pass
         Args:
-            x: 输入数据 [batch_size, input_dim]
+            x: Input data [batch_size, input_dim]
         Returns:
-            representation: 输出表示 [batch_size, latent_dim]
+            representation: Output representation [batch_size, latent_dim]
         """
         return self.encoder(x)
 
@@ -46,11 +46,11 @@ class SingleViewEncoder(nn.Module):
 class MultiViewUsefulEncoderSystem(nn.Module):
     def __init__(self, config):
         """
-        多视图有用编码器系统
+        Multi-view useful encoder system
         Args:
-            feature_dims: 各视图的输入维度列表 [D(1), D(2), ..., D(V)]
-            latent_dim: 共享潜在维度 l
-            hidden_dims: 隐藏层维度
+            feature_dims: Input dimension list for each view [D(1), D(2), ..., D(V)]
+            latent_dim: Shared latent dimension l
+            hidden_dims: Hidden layer dimensions
         """
         super(MultiViewUsefulEncoderSystem, self).__init__()
 
@@ -59,7 +59,7 @@ class MultiViewUsefulEncoderSystem(nn.Module):
         self.feature_dims = config.feature_dims
         self.num_views = len(self.feature_dims)
 
-        # 为每个视图创建专用的编码器
+        # Create dedicated encoder for each view
         self.encoders = nn.ModuleList([
             SingleViewEncoder(dim, self.latent_dim, self.hidden_dims)
             for dim in self.feature_dims
@@ -67,11 +67,11 @@ class MultiViewUsefulEncoderSystem(nn.Module):
 
     def forward(self, x_list):
         """
-        前向传播所有视图
+        Forward pass for all views
         Args:
-            x_list: 各视图输入数据列表 [X(1), X(2), ..., X(V)]
+            x_list: Input data list for each view [X(1), X(2), ..., X(V)]
         Returns:
-            useful_representations: 各视图的有用表示列表
+            useful_representations: Useful representation list for each view
         """
         useful_representations = []
 
@@ -85,11 +85,11 @@ class MultiViewUsefulEncoderSystem(nn.Module):
 class MultiViewTrashEncoderSystem(nn.Module):
     def __init__(self, config):
         """
-        多视图有用编码器系统
+        Multi-view trash encoder system
         Args:
-            feature_dims: 各视图的输入维度列表 [D(1), D(2), ..., D(V)]
-            latent_dim: 共享潜在维度 l
-            hidden_dims: 隐藏层维度
+            feature_dims: Input dimension list for each view [D(1), D(2), ..., D(V)]
+            latent_dim: Shared latent dimension l
+            hidden_dims: Hidden layer dimensions
         """
         super(MultiViewTrashEncoderSystem, self).__init__()
 
@@ -98,7 +98,7 @@ class MultiViewTrashEncoderSystem(nn.Module):
         self.feature_dims = config.feature_dims
         self.num_views = len(self.feature_dims)
 
-        # 为每个视图创建专用的编码器
+        # Create dedicated encoder for each view
         self.encoders = nn.ModuleList([
             SingleViewEncoder(dim, self.latent_dim, self.hidden_dims)
             for dim in self.feature_dims
@@ -106,11 +106,11 @@ class MultiViewTrashEncoderSystem(nn.Module):
 
     def forward(self, x_list):
         """
-        前向传播所有视图
+        Forward pass for all views
         Args:
-            x_list: 各视图输入数据列表 [X(1), X(2), ..., X(V)]
+            x_list: Input data list for each view [X(1), X(2), ..., X(V)]
         Returns:
-            trash_representations: 各视图的有用表示列表
+            trash_representations: Trash representation list for each view
         """
         trash_representations = []
 
@@ -122,12 +122,12 @@ class MultiViewTrashEncoderSystem(nn.Module):
 
     def encode_single_view(self, x, view_idx):
         """
-        编码单个视图
+        Encode single view
         Args:
-            x: 单个视图输入数据
-            view_idx: 视图索引
+            x: Single view input data
+            view_idx: View index
         Returns:
-            trash_representation: 单个视图的有用表示
+            trash_representation: Trash representation of single view
         """
         return self.encoders[view_idx](x)
 
@@ -154,11 +154,11 @@ class TreasureRepresentationEncoder(nn.Module):
     def forward(self, trash_representations):
 
         stacked_trash = torch.stack(trash_representations, dim=1)
-        # 使用注意力机制
+        # Use attention mechanism
         attended_trash, _ = self.attention(
             stacked_trash, stacked_trash, stacked_trash
         )
-        # 平均池化
+        # Average pooling
         mean_attended = torch.mean(attended_trash, dim=1)
 
         treasure = self.transform(mean_attended)

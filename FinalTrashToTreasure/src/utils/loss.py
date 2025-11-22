@@ -12,11 +12,11 @@ class ReconstructionLoss(nn.Module):
         total_loss = 0
 
         for x_hat, x_original in zip(reconstructed_list, original_list):
-            # 计算每个视图的 reconstruction error
+            # Calculate reconstruction error for each view
             mse_loss = F.mse_loss(x_hat, x_original, reduction=self.reduction)
             total_loss += mse_loss
 
-        # 根据reduction类型处理
+        # Process according to reduction type
         if self.reduction == 'mean':
             total_loss = total_loss / len(original_list)
         elif self.reduction == 'sum':
@@ -35,7 +35,7 @@ class UsefulLoss(nn.Module):
         self.reduction = reduction
         self.class_weights = class_weights
 
-        # 为每个视图创建可学习的分类器
+        # Create learnable classifiers for each view
         self.classifiers = nn.ModuleList([
             nn.Sequential(
                 nn.Linear(self.latent_dim, 128),

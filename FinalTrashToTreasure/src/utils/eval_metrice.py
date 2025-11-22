@@ -17,7 +17,7 @@ def eval_senti(results, truths, exclude_zero=False):
         mask = truths != 0
         results = results[mask]
         truths = truths[mask]
-        print(f"排除0类别后: {results.shape}, {truths.shape}")
+        print(f"After excluding class 0: {results.shape}, {truths.shape}")
 
     pred_labels = np.argmax(results, axis=1)
 
@@ -33,7 +33,7 @@ def eval_senti(results, truths, exclude_zero=False):
         truths_onehot = np.eye(results.shape[1])[truths]
         metrics['auc'] = roc_auc_score(truths_onehot, results, multi_class='ovr')
     except Exception as e:
-        print(f"AUC计算错误: {e}")
+        print(f"AUC calculation error: {e}")
         metrics['auc'] = 0.0
 
     print(f"ACC: {metrics['accuracy']:.4f}")

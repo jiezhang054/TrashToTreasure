@@ -66,7 +66,7 @@ def split_handwritten_dataset(mat_path, output_path, train_ratio=0.6, valid_rati
     sio.savemat(output_path, save_dict)
 
 
-    print(f"数据划分成功，已保存到: {output_path}")
+    print(f"Data split successfully, saved to: {output_path}")
 
     return True
 
@@ -91,7 +91,7 @@ def split_landuse_dataset(mat_path, output_path, train_ratio=0.6, valid_ratio=0.
     for i in range(n_views):
         view_data = X[0, i]
 
-        # 确保数据是2D数组
+        # Ensure data is 2D array
         if view_data.ndim == 1:
             view_data = view_data.reshape(-1, 1)
 
@@ -140,7 +140,7 @@ def split_landuse_dataset(mat_path, output_path, train_ratio=0.6, valid_ratio=0.
 
     sio.savemat(output_path, save_dict)
 
-    print(f"数据划分成功，已保存到: {output_path}")
+    print(f"Data split successfully, saved to: {output_path}")
 
     return True
 
@@ -162,7 +162,7 @@ def split_scene15_dataset(mat_path, output_path, train_ratio=0.6, valid_ratio=0.
     for i in range(n_views):
         view_data = X[0, i]
 
-        # 确保数据是2D数组
+        # Ensure data is 2D array
         if view_data.ndim == 1:
             view_data = view_data.reshape(-1, 1)
 
@@ -204,7 +204,7 @@ def split_scene15_dataset(mat_path, output_path, train_ratio=0.6, valid_ratio=0.
 
     sio.savemat(output_path, save_dict)
 
-    print(f"数据划分成功，已保存到: {output_path}")
+    print(f"Data split successfully, saved to: {output_path}")
 
     return True
 
@@ -229,12 +229,12 @@ def split_Reuters_dataset(mat_path, output_path, train_ratio=0.6, valid_ratio=0.
             view_data = view_data.reshape(-1, 1)
 
         views_data.append(view_data)
-        print(f"  视图{i + 1}维度: {view_data.shape}")
+        print(f"  View {i + 1} dimension: {view_data.shape}")
 
-    # 验证比例总和为1
+    # Verify that ratio sum equals 1
     total_ratio = train_ratio + valid_ratio + test_ratio
     if abs(total_ratio - 1.0) > 1e-6:
-        raise ValueError(f"比例总和应为1.0，当前为{total_ratio}")
+        raise ValueError(f"Ratio sum should be 1.0, current is {total_ratio}")
 
     train_indices, temp_indices = train_test_split(
         np.arange(n_samples),
@@ -260,9 +260,9 @@ def split_Reuters_dataset(mat_path, output_path, train_ratio=0.6, valid_ratio=0.
 
         return proportions
 
-    train_props = check_stratification(Y, train_indices, "训练集")
-    valid_props = check_stratification(Y, valid_indices, "验证集")
-    test_props = check_stratification(Y, test_indices, "测试集")
+    train_props = check_stratification(Y, train_indices, "train set")
+    valid_props = check_stratification(Y, valid_indices, "validation set")
+    test_props = check_stratification(Y, test_indices, "test set")
 
     save_dict = {}
 
@@ -305,7 +305,7 @@ def split_Reuters_dataset(mat_path, output_path, train_ratio=0.6, valid_ratio=0.
 
     sio.savemat(output_path, save_dict)
 
-    print(f"\n数据划分成功，已保存到: {output_path}")
+    print(f"\nData split successfully, saved to: {output_path}")
 
     return True
 
@@ -367,7 +367,7 @@ def split_prokaryotic_dataset(mat_path ,output_path,  train_ratio=0.6, valid_rat
 
     sio.savemat(output_path, save_dict)
 
-    print(f"数据划分成功，已保存到: {output_path}")
+    print(f"Data split successfully, saved to: {output_path}")
 
     return True
 
@@ -431,6 +431,6 @@ def split_3sources_dataset(mat_path, output_path, train_ratio=0.6, valid_ratio=0
 
     sio.savemat(output_path, save_dict)
 
-    print(f"数据划分成功，已保存到: {output_path}")
+    print(f"Data split successfully, saved to: {output_path}")
 
     return True

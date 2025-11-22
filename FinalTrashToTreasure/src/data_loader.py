@@ -20,7 +20,7 @@ class MMDataset(Dataset):
             'Reuters':self.__init_Reuters,
         }
 
-        # 根据配置选择数据集初始化方法
+        # Select dataset initialization method based on configuration
         if config.dataset in DATA_MAP:
             DATA_MAP[config.dataset]()
         else:
@@ -28,12 +28,12 @@ class MMDataset(Dataset):
 
     def check_split(self):
         original_path = Path(self.config.dataset_dir)
-        stem = original_path.stem  # 获取文件名（不含后缀）
-        suffix = original_path.suffix  # 获取文件后缀
+        stem = original_path.stem  # Get filename (without extension)
+        suffix = original_path.suffix  # Get file extension
         split_path = original_path.parent / f"{stem}_622{suffix}"
 
         if not split_path.exists():
-            print(f"划分后数据集不存在，需要划分: {split_path}")
+            print(f"Split dataset does not exist, needs to be split: {split_path}")
             return False,split_path
         else:
             return True,split_path
@@ -44,7 +44,7 @@ class MMDataset(Dataset):
         return data
 
     def normalize_data(self,data_list):
-        """归一化每个视图的数据"""
+        """Normalize data for each view"""
         normalized_list = []
         for data in data_list:
 
@@ -81,7 +81,7 @@ class MMDataset(Dataset):
                 data.append(view_data)
             labels = mat_content['truth_test'].flatten()
         else:
-            raise ValueError("mode必须是 'train', 'valid' 或 'test'")
+            raise ValueError("mode must be 'train', 'valid' or 'test'")
 
         if labels.ndim > 1:
             labels = self.labels.squeeze()
@@ -176,7 +176,7 @@ class MMDataset(Dataset):
 
         sample = []
         for i in range(self.num_views):
-            # 获取每个视图的数据
+            # Get data for each view
             view_data = self.data[i][index]
             sample.append(view_data)
         label = self.labels[index]
@@ -184,11 +184,11 @@ class MMDataset(Dataset):
         return sample, label
 
     def get_num_classes(self):
-        """返回数据集的类别数量"""
+        """Return the number of classes in the dataset"""
         return len(torch.unique(self.labels))
 
     def get_feature_dimensions(self):
-        """返回每个视图的特征维度"""
+        """Return the feature dimensions of each view"""
         feature_dims = []
 
         for i in range(self.num_views):

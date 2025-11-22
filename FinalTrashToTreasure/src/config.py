@@ -88,7 +88,7 @@ def get_args():
     # Training settings
     parser.add_argument('--batch_size', type=int, default=64, metavar='N',
                         help='Batch size (default: 64)')
-    parser.add_argument('--c', type=float, default=5e-3,
+    parser.add_argument('--learning_rate', type=float, default=5e-3,
                         help='Initial learning rate for  model parameters (default: 5e-3)')
     parser.add_argument('--weight_decay', type=float, default=5e-5,
                         help='L2 penalty factor of the  Adam optimizer')

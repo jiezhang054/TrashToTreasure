@@ -5,11 +5,11 @@ import torch.nn as nn
 class SingleViewDecoder(nn.Module):
     def __init__(self, output_dim, latent_dim, hidden_dims):
         """
-        单视图解码器
+        Single-view decoder
         Args:
-            output_dim: 输出维度 D(v)（原始数据维度）
-            latent_dim: 潜在维度 l（输入维度是 2l）
-            hidden_dims: 隐藏层维度列表（逆序）
+            output_dim: Output dimension D(v) (original data dimension)
+            latent_dim: Latent dimension l (input dimension is 2l)
+            hidden_dims: Hidden layer dimensions list (reverse order)
         """
         super(SingleViewDecoder, self).__init__()
 
@@ -18,32 +18,32 @@ class SingleViewDecoder(nn.Module):
         self.input_dim = 2 * latent_dim  # T(v) = [useful; trash] ∈ R^(2l)
         self.dropout_rata=0.3
 
-        # 构建三层全连接解码网络
+        # Build three-layer fully connected decoder network
         layers = []
         prev_dim = self.input_dim
 
-        # 添加隐藏层（逆序）
+        # Add hidden layers (reverse order)
         for i, hidden_dim in enumerate(hidden_dims):
             layers.append(nn.Linear(prev_dim, hidden_dim))
             layers.append(nn.ReLU())
             layers.append(nn.BatchNorm1d(hidden_dim))
-            # 添加Dropout层（除了最后一层）
+            # Add Dropout layer (except the last layer)
             if i < len(hidden_dims) - 1:
                 layers.append(nn.Dropout(self.dropout_rata))
             prev_dim = hidden_dim
 
-        # 添加输出层（重构原始数据）
+        # Add output layer (reconstruct original data)
         layers.append(nn.Linear(prev_dim, output_dim))
 
         self.decoder = nn.Sequential(*layers)
 
     def forward(self, t_representation):
         """
-        前向传播：从精炼表示重构原始数据
+        Forward pass: Reconstruct original data from refined representation
         Args:
-            t_representation: 精炼表示 T(v) [batch_size, 2*l]
+            t_representation: Refined representation T(v) [batch_size, 2*l]
         Returns:
-            x_reconstructed: 重构数据 X̂(v) [batch_size, output_dim]
+            x_reconstructed: Reconstructed data X̂(v) [batch_size, output_dim]
         """
 
         return self.decoder(t_representation)
@@ -52,11 +52,11 @@ class SingleViewDecoder(nn.Module):
 class MultiViewDecoderSystem(nn.Module):
     def __init__(self, config):
         """
-        多视图解码器系统
+        Multi-view decoder system
         Args:
-            view_dims: 各视图的原始维度列表 [D(1), D(2), ..., D(V)]
-            latent_dim: 潜在维度 l
-            hidden_dims: 隐藏层维度（逆序）
+            view_dims: Original dimension list for each view [D(1), D(2), ..., D(V)]
+            latent_dim: Latent dimension l
+            hidden_dims: Hidden layer dimensions (reverse order)
         """
         super(MultiViewDecoderSystem, self).__init__()
 
@@ -65,7 +65,7 @@ class MultiViewDecoderSystem(nn.Module):
         self.feature_dims = config.feature_dims
         self.num_views = len(self.feature_dims)
 
-        # 为每个视图创建专用的解码器
+        # Create dedicated decoder for each view
         self.decoders = nn.ModuleList([
             SingleViewDecoder(dim, self.latent_dim, self.hidden_dims)
             for dim in self.feature_dims
@@ -73,11 +73,11 @@ class MultiViewDecoderSystem(nn.Module):
 
     def forward(self, t_representations):
         """
-        前向传播所有视图
+        Forward pass for all views
         Args:
-            t_representations: 各视图的精炼表示列表 [T(1), T(2), ..., T(V)]
+            t_representations: Refined representation list for each view [T(1), T(2), ..., T(V)]
         Returns:
-            x_reconstructed: 各视图的重构数据列表 [X̂(1), X̂(2), ..., X̂(V)]
+            x_reconstructed: Reconstructed data list for each view [X̂(1), X̂(2), ..., X̂(V)]
         """
         reconstructed_data = []
 
@@ -89,11 +89,11 @@ class MultiViewDecoderSystem(nn.Module):
 
     def decode_single_view(self, t_representation, view_idx):
         """
-        解码单个视图
+        Decode single view
         Args:
-            t_representation: 单个视图的精炼表示
-            view_idx: 视图索引
+            t_representation: Refined representation of single view
+            view_idx: View index
         Returns:
-            x_reconstructed: 单个视图的重构数据
+            x_reconstructed: Reconstructed data of single view
         """
         return self.decoders[view_idx](t_representation)

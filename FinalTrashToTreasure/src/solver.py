@@ -64,7 +64,8 @@ class Solver(object):
             """Training loop for one epoch."""
             model.train()
             num_batches = len(self.train_loader)
-            proc_loss, proc_size = 0, 0
+            proc_loss, proc_size = 0, 0  # Temporary variables for logging
+            epoch_loss, epoch_size = 0, 0  # Variables for calculating average loss of the entire epoch
             start_time = time.time()
             for batch_idx, (data_list, labels) in enumerate(self.train_loader):
                 data_list = [x.to(self.device) for x in data_list]
@@ -98,6 +99,8 @@ class Solver(object):
 
                 proc_loss += total_loss.item() * batch_size
                 proc_size += batch_size
+                epoch_loss += total_loss.item() * batch_size
+                epoch_size += batch_size
 
                 if batch_idx % self.config.log_interval == 0 and batch_idx > 0:
                     avg_loss = proc_loss / proc_size
@@ -107,7 +110,9 @@ class Solver(object):
                     )
                     proc_loss, proc_size = 0, 0
                     start_time = time.time()
-            return  proc_loss / len(self.train_loader.dataset)
+            
+            # Return average loss of the entire epoch (using epoch_loss and epoch_size, not affected by logging)
+            return epoch_loss / epoch_size if epoch_size > 0 else 0.0
 
         def evaluate(model, criterion, test=False):
             """Evaluation loop."""
