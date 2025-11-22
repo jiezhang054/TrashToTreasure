@@ -48,7 +48,7 @@ TrashToTreasure is a multi-view classification framework that:
 
 1. **Clone the repository:**
 ```bash
-git clone <repository-url>
+git clone jiezhang054/TrashToTreasure
 cd FinalTrashToTreasure
 ```
 
